@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Habit Tracker</h1>
+            <button class="btn btn--primary" id="createHabitBtn">Create Habit</button>
+        </header>
+
+        <!-- Main Content -->
+        <main id="mainContent">
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <h2>No habits yet</h2>
+                <p>Create your first habit to start tracking your progress!</p>
+                <button class="btn btn--primary" id="createFirstHabitBtn">Create Your First Habit</button>
+            </div>
+
+            <!-- Habits Grid -->
+            <div id="habitsGrid" class="habits-grid hidden">
+                <!-- Habit cards will be dynamically inserted here -->
+            </div>
+        </main>
+
+        <!-- Create Habit Modal -->
+        <div id="createHabitModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Create New Habit</h2>
+                    <button class="modal-close" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="habitForm" class="habit-form">
+                        <!-- Habit Name -->
+                        <div class="form-group">
+                            <label for="habitName" class="form-label">Habit Name</label>
+                            <input type="text" id="habitName" class="form-control" placeholder="Enter habit name" required>
+                        </div>
+
+                        <!-- Metric Type -->
+                        <div class="form-group">
+                            <label for="metricType" class="form-label">Metric Type</label>
+                            <select id="metricType" class="form-control">
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+
+                        <!-- Start Day -->
+                        <div class="form-group">
+                            <label for="startDay" class="form-label">Week Starts On</label>
+                            <select id="startDay" class="form-control">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+
+                        <!-- Privacy -->
+                        <div class="form-group">
+                            <label class="form-label">Privacy</label>
+                            <div class="privacy-options">
+                                <label class="privacy-option">
+                                    <input type="radio" name="privacy" value="public" checked>
+                                    <span>Public</span>
+                                </label>
+                                <label class="privacy-option">
+                                    <input type="radio" name="privacy" value="private">
+                                    <span>Private</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Statistics -->
+                        <div class="form-group">
+                            <label class="form-label">Statistics to Track</label>
+                            <div id="statisticsOptions" class="statistics-options">
+                                <!-- Statistics checkboxes will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Color Picker -->
+                        <div class="form-group">
+                            <label class="form-label">Color</label>
+                            <div id="colorPicker" class="color-picker">
+                                <!-- Color options will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div class="form-group">
+                            <label class="form-label">Preview</label>
+                            <div class="preview-section">
+                                <div class="preview-heatmap">
+                                    <div id="previewHeatmap" class="heatmap-container">
+                                        <!-- Preview heatmap will be generated here -->
+                                    </div>
+                                </div>
+                                <div class="preview-stats">
+                                    <div id="previewStats" class="stats-container">
+                                        <!-- Preview stats will be generated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" class="btn btn--secondary" id="cancelBtn">Cancel</button>
+                            <button type="submit" class="btn btn--primary" id="saveHabitBtn">Save Habit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entry Modal -->
+        <div id="entryModal" class="modal hidden">
+            <div class="modal-content modal-content--small">
+                <div class="modal-header">
+                    <h3 id="entryModalTitle">Log Entry</h3>
+                    <button class="modal-close" id="closeEntryModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="entryForm">
+                        <div class="form-group">
+                            <label for="entryValue" class="form-label" id="entryValueLabel">Value</label>
+                            <input type="number" id="entryValue" class="form-control" min="0" step="0.1">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn--secondary" id="cancelEntryBtn">Cancel</button>
+                            <button type="submit" class="btn btn--primary">Save Entry</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="modal hidden">
+            <div class="modal-content modal-content--small">
+                <div class="modal-header">
+                    <h3>Delete Habit</h3>
+                    <button class="modal-close" id="closeDeleteModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this habit? This action cannot be undone.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--secondary" id="cancelDeleteBtn">Cancel</button>
+                        <button type="button" class="btn btn--error" id="confirmDeleteBtn">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
