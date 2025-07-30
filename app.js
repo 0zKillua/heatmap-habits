@@ -7,6 +7,7 @@ class HabitTracker {
         this.currentEntryHabit = null;
         this.currentDeleteHabit = null;
         this.currentTooltip = null;
+        this.initTheme();
         
         // Data from the provided JSON
         this.metricTypes = [
@@ -63,6 +64,65 @@ class HabitTracker {
         ];
         
         this.init();
+    }
+
+    initTheme() {
+        const savedTheme = localStorage.getItem('habitTracker_theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        this.applyTheme(currentTheme);
+    }
+
+    applyTheme(theme) {
+        document.documentElement.setAttribute('data-color-scheme', theme);
+        localStorage.setItem('habitTracker_theme', theme);
+    }
+
+    toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-color-scheme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        this.applyTheme(newTheme);
+    }
+
+    exportData() {
+        const data = JSON.stringify(this.habits, null, 2);
+        const blob = new Blob([data], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'habit-tracker-backup.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    importData(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedHabits = JSON.parse(e.target.result);
+                if (Array.isArray(importedHabits)) {
+                    this.habits = importedHabits;
+                    this.saveHabits();
+                    this.updateUI();
+                    alert('Data imported successfully!');
+                } else {
+                    alert('Invalid file format.');
+                }
+            } catch (error) {
+                alert('Error reading or parsing the file.');
+                console.error('Import error:', error);
+            }
+        };
+        reader.readAsText(file);
+        // Reset the input value to allow importing the same file again
+        event.target.value = null;
     }
     
     init() {
@@ -201,6 +261,13 @@ class HabitTracker {
             if (e.target.classList.contains('modal')) {
                 this.closeModal(e.target.id);
             }
+
+            // Close open dropdowns
+            if (!e.target.closest('.habit-card-actions')) {
+                document.querySelectorAll('.dropdown-menu:not(.hidden)').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            }
         });
         
         // ESC key to close modals
@@ -212,6 +279,26 @@ class HabitTracker {
                 }
             }
         });
+
+        // Theme switcher
+        const themeSwitcherBtn = document.getElementById('themeSwitcherBtn');
+        if (themeSwitcherBtn) {
+            themeSwitcherBtn.addEventListener('click', () => this.toggleTheme());
+        }
+
+        // Export button
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => this.exportData());
+        }
+
+        // Import button and file input
+        const importBtn = document.getElementById('importBtn');
+        const importInput = document.getElementById('importInput');
+        if (importBtn && importInput) {
+            importBtn.addEventListener('click', () => importInput.click());
+            importInput.addEventListener('change', (e) => this.importData(e));
+        }
     }
     
     populateFormOptions() {
@@ -326,10 +413,11 @@ class HabitTracker {
     createHabitCard(habit) {
         const card = document.createElement('div');
         card.className = 'habit-card';
-        
+        card.dataset.habitId = habit.id;
+
         const metricInfo = this.getMetricInfo(habit.metric.type);
         const stats = this.calculateStats(habit);
-        
+
         card.innerHTML = `
             <div class="habit-card-header">
                 <div class="habit-card-info">
@@ -337,8 +425,13 @@ class HabitTracker {
                     <div class="metric-info">${metricInfo.label}</div>
                 </div>
                 <div class="habit-card-actions">
-                    <button class="btn btn--sm btn--secondary edit-btn" data-habit-id="${habit.id}">Edit</button>
-                    <button class="btn btn--sm btn--error delete-btn" data-habit-id="${habit.id}">Delete</button>
+                    <button class="menu-toggle-btn" aria-label="Options">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                    </button>
+                    <div class="dropdown-menu hidden">
+                        <button class="dropdown-item edit-btn" data-habit-id="${habit.id}">Edit</button>
+                        <button class="dropdown-item delete-btn" data-habit-id="${habit.id}">Delete</button>
+                    </div>
                 </div>
             </div>
             <div class="heatmap-container">
@@ -348,11 +441,26 @@ class HabitTracker {
                 ${this.createStatsDisplay(habit, stats)}
             </div>
         `;
-        
+
         // Add event listeners
+        const menuToggleBtn = card.querySelector('.menu-toggle-btn');
+        const dropdownMenu = card.querySelector('.dropdown-menu');
         const editBtn = card.querySelector('.edit-btn');
         const deleteBtn = card.querySelector('.delete-btn');
-        
+
+        if (menuToggleBtn) {
+            menuToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close other open menus
+                document.querySelectorAll('.dropdown-menu:not(.hidden)').forEach(menu => {
+                    if (menu !== dropdownMenu) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                dropdownMenu.classList.toggle('hidden');
+            });
+        }
+
         if (editBtn) {
             editBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -360,7 +468,7 @@ class HabitTracker {
                 this.editHabit(habit.id);
             });
         }
-        
+
         if (deleteBtn) {
             deleteBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -368,60 +476,86 @@ class HabitTracker {
                 this.deleteHabit(habit.id);
             });
         }
-        
+
         return card;
     }
     
     createHeatmap(habit) {
+        let finalHtml = '';
         const today = new Date();
-        const yearStart = new Date(today.getFullYear(), 0, 1);
-        
-        let html = '<div class="heatmap">';
-        
-        // Generate cells for the year
-        const totalDays = Math.floor((today - yearStart) / (1000 * 60 * 60 * 24)) + 1;
-        
-        for (let i = 0; i < Math.min(totalDays, 365); i++) {
-            const date = new Date(yearStart);
-            date.setDate(date.getDate() + i);
-            
-            const dateStr = this.formatDate(date);
-            const hasEntry = habit.entries && habit.entries[dateStr];
-            const isToday = this.formatDate(date) === this.formatDate(today);
-            
-            const cellClasses = [
-                'heatmap-cell',
-                habit.color,
-                hasEntry ? 'has-entry' : '',
-                isToday ? 'today' : ''
-            ].filter(c => c).join(' ');
-            
-            html += `<div class="${cellClasses}" data-date="${dateStr}" data-habit-id="${habit.id}"></div>`;
+        const currentYear = today.getFullYear();
+
+        // Create a container for all the month grids
+        finalHtml += '<div class="heatmap-months-container">';
+
+        // Loop through the months of the current year
+        for (let month = 0; month < 12; month++) {
+            const date = new Date(currentYear, month, 1);
+            const monthName = date.toLocaleString('default', { month: 'short' });
+
+            let monthHtml = `<div class="month-grid">`;
+            monthHtml += `<div class="month-label">${monthName}</div>`;
+            monthHtml += `<div class="day-grid">`;
+
+            const firstDay = date.getDay(); // 0=Sun, 1=Mon...
+            const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
+
+            // Add empty cells for padding
+            for (let j = 0; j < firstDay; j++) {
+                monthHtml += '<div class="heatmap-cell empty"></div>';
+            }
+
+            // Add day cells
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDate = new Date(currentYear, month, day);
+                
+                // Don't render future dates
+                if (currentDate > today) {
+                    monthHtml += '<div class="heatmap-cell empty"></div>';
+                    continue;
+                }
+
+                const dateStr = this.formatDate(currentDate);
+                const hasEntry = habit.entries && habit.entries[dateStr];
+                const isToday = this.formatDate(currentDate) === this.formatDate(today);
+
+                const cellClasses = [
+                    'heatmap-cell',
+                    habit.color,
+                    hasEntry ? 'has-entry' : '',
+                    isToday ? 'today' : ''
+                ].filter(Boolean).join(' ');
+
+                monthHtml += `<div class="${cellClasses}" data-date="${dateStr}" data-habit-id="${habit.id}"></div>`;
+            }
+
+            monthHtml += `</div></div>`;
+            finalHtml += monthHtml;
         }
-        
-        html += '</div>';
-        
+
+        finalHtml += '</div>';
+
         // Add event listeners after rendering
         setTimeout(() => {
-            const cells = document.querySelectorAll(`[data-habit-id="${habit.id}"]`);
+            const cells = document.querySelectorAll(`.habit-card[data-habit-id="${habit.id}"] .heatmap-cell:not(.empty)`)
             cells.forEach(cell => {
                 cell.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     this.openEntryModal(habit.id, cell.dataset.date);
                 });
-                
+
                 cell.addEventListener('mouseenter', (e) => {
                     this.showTooltip(e, habit, cell.dataset.date);
                 });
-                
+
                 cell.addEventListener('mouseleave', () => {
                     this.hideTooltip();
                 });
             });
         }, 0);
-        
-        return html;
+
+        return finalHtml;
     }
     
     createStatsDisplay(habit, stats) {
@@ -478,19 +612,33 @@ class HabitTracker {
         const entries = habit.entries || {};
         const today = new Date();
         let streak = 0;
-        
-        for (let i = 0; i < 365; i++) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const dateStr = this.formatDate(date);
-            
-            if (entries[dateStr] && entries[dateStr] > 0) {
-                streak++;
+
+        // Check if today has an entry
+        if (entries[this.formatDate(today)]) {
+            streak++;
+            for (let i = 1; i < 365; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = this.formatDate(date);
+
+                if (entries[dateStr] && entries[dateStr] > 0) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            // Check if yesterday has an entry
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            if (entries[this.formatDate(yesterday)]) {
+                streak = 0; // Streak is broken
             } else {
-                break;
+                // If neither today nor yesterday has an entry, the streak is 0.
+                streak = 0;
             }
         }
-        
+
         return streak;
     }
     
@@ -807,9 +955,9 @@ class HabitTracker {
         const entries = {};
         const today = new Date();
         
-        // Generate some sample entries for the last 30 days
-        for (let i = 0; i < 30; i++) {
-            if (Math.random() > 0.3) { // 70% chance of entry
+        // Generate some sample entries for the last 365 days
+        for (let i = 0; i < 365; i++) {
+            if (Math.random() > 0.4) { // 60% chance of entry
                 const date = new Date(today);
                 date.setDate(date.getDate() - i);
                 entries[this.formatDate(date)] = Math.floor(Math.random() * 10) + 1;

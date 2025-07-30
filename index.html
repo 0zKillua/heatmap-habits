@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit Tracker</title>
+    <title>Consistency Tracker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>Habit Tracker</h1>
-            <button class="btn btn--primary" id="createHabitBtn">Create Habit</button>
+            <h1>Consistency Tracker</h1>
+            <div class="header-actions">
+                <button class="btn btn--secondary" id="importBtn">Import</button>
+                <button class="btn btn--secondary" id="exportBtn">Export</button>
+                <button class="btn btn--secondary" id="themeSwitcherBtn">Toggle Theme</button>
+                <button class="btn btn--primary" id="createHabitBtn">Create Habit</button>
+                <input type="file" id="importInput" accept=".json" style="display: none;">
+            </div>
         </header>
 
         <!-- Main Content -->

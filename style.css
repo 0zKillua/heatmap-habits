@@ -756,6 +756,11 @@ select.form-control {
   color: var(--color-text);
 }
 
+.header-actions {
+    display: flex;
+    gap: var(--space-12);
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;
@@ -779,8 +784,8 @@ select.form-control {
 
 /* Habits Grid */
 .habits-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--space-24);
   margin-top: var(--space-24);
 }
@@ -819,27 +824,88 @@ select.form-control {
 }
 
 .habit-card-actions {
-  display: flex;
-  gap: var(--space-8);
+  position: relative;
 }
 
-.habit-card-actions button {
-  padding: var(--space-4) var(--space-8);
-  font-size: var(--font-size-sm);
-  border-radius: var(--radius-sm);
+.menu-toggle-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+}
+
+.menu-toggle-btn:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    box-shadow: var(--shadow-md);
+    z-index: 100;
+    width: 120px;
+    overflow: hidden;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: var(--space-8) var(--space-12);
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.dropdown-item:hover {
+    background-color: var(--color-secondary);
+}
+
+.dropdown-item.delete-btn {
+    color: var(--color-error);
 }
 
 /* Heatmap */
 .heatmap-container {
-  margin-bottom: var(--space-16);
+    overflow-x: auto;
+    padding-bottom: var(--space-8);
 }
 
-.heatmap {
-  display: grid;
-  grid-template-columns: repeat(53, 1fr);
-  gap: 2px;
-  max-width: 100%;
-  overflow-x: auto;
+.heatmap-months-container {
+    display: flex;
+    gap: var(--space-16);
+}
+
+.month-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.month-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-bottom: var(--space-4);
+}
+
+.day-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 1fr);
+    grid-auto-flow: column;
+    gap: 3px;
 }
 
 .heatmap-cell {
@@ -850,10 +916,15 @@ select.form-control {
   border: 1px solid var(--color-border);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-standard);
-  position: relative;
 }
 
-.heatmap-cell:hover {
+.heatmap-cell.empty {
+    background-color: transparent;
+    border: none;
+    cursor: default;
+}
+
+.heatmap-cell:not(.empty):hover {
   transform: scale(1.2);
   z-index: 10;
 }
@@ -865,7 +936,6 @@ select.form-control {
 
 .heatmap-cell.today {
   border: 2px solid var(--color-text);
-  border-radius: 50%;
 }
 
 /* Color variants for heatmap */
@@ -878,30 +948,31 @@ select.form-control {
 
 /* Stats */
 .stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-12);
 }
 
 .stat-item {
   text-align: center;
-  padding: var(--space-12);
+  padding: var(--space-8) var(--space-12);
   background-color: var(--color-bg-1);
   border-radius: var(--radius-base);
   border: 1px solid var(--color-border);
+  flex-grow: 1;
 }
 
 .stat-value {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
   display: block;
 }
 
 .stat-label {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
 }
 
 /* Modal */
@@ -1161,17 +1232,17 @@ select.form-control {
   }
 
   .habits-grid {
-    grid-template-columns: 1fr;
     gap: var(--space-16);
   }
 
   .heatmap {
-    grid-template-columns: repeat(26, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(12px, 1fr));
+    gap: 2px;
   }
 
   .heatmap-cell {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
   }
 
   .preview-section {
@@ -1197,17 +1268,18 @@ select.form-control {
   }
 
   .stats-container {
-    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 480px) {
   .stats-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .heatmap-cell {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
 }

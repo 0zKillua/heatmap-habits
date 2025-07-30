@@ -1,21 +1,25 @@
-# heatmap-consistency
-Key Features Implemented
-✅ Multiple Habits: Create unlimited habits with customizable names and metrics
-✅ Flexible Metrics: Support for various units (minutes, km, steps, etc.) or simple yes/no tracking
-✅ Heat Map Visualization: Year-long calendar grid showing daily completion with color intensity
-✅ Comprehensive Statistics: Streak tracking, averages, totals, standard deviation, and more
-✅ Local Storage: All data persists in your browser - no login required
-✅ Clean UI: Minimal design matching your reference screenshots
+# Consistency Tracker
 
-How to Use
-Create Your First Habit: Click "Create Habit" and fill in the details
+A simple yet powerful tool to help you build and maintain habits through a visually appealing heatmap interface. Track your progress, stay motivated, and build consistency in your daily life.
 
-Choose Metrics: Select from predefined options or use binary tracking
+## Features
 
-Pick Statistics: Enable the stats you want to track (streak, average, total, etc.)
+- **Unlimited Habits:** Create and track as many habits as you want.
+- **Customizable Metrics:** Track habits with various units (e.g., minutes, km, steps) or simple yes/no completion.
+- **GitHub-Style Heatmap:** A year-long, monthly-grid heatmap inspired by GitHub's contribution graph provides a clear and satisfying visualization of your progress.
+- **In-Depth Statistics:** Get valuable insights with stats like current streak, longest streak, average, total, and more.
+- **Dark Mode:** A sleek, eye-friendly dark mode that respects your system preference and can be toggled manually.
+- **Local Storage:** All your data is saved securely in your browser. No need for an account or internet connection.
+- **Data Management:** Easily export your habit data to a JSON file for backup or import it to a different device.
 
-Log Daily Progress: Click on heat map squares to record entries
+## How to Use
 
-View Progress: See your habits on the dashboard with visual heat maps and live statistics
+1.  **Create a Habit:** Click the "Create Habit" button and give your new habit a name.
+2.  **Customize:** Choose a metric, select the stats you want to track, and pick a color for your heatmap.
+3.  **Log Your Progress:** Click on a day in the heatmap to log your activity.
+4.  **Track Your Consistency:** Watch your heatmap fill up and your stats improve as you build your habits.
 
-The app works entirely offline and saves all your data locally.
+## Data Management
+
+- **Export:** Click the "Export" button to download a JSON file of all your habit data.
+- **Import:** Click the "Import" button and select a previously exported JSON file to restore your data.
